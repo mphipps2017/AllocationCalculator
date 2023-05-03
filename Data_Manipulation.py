@@ -6,10 +6,10 @@ def reduce_dictionary(dictionary, col):
 
 
 # Ticker = list of tickers to combine percetnages
-# Percentage = dictionary of ticker  percentage pairs
+# Costs = dollar amount of positions
 # Returns the total percentage of all tickers
-def combine_tickers(tickers, percentages):
-    percentage = 0
+def combine_tickers(tickers, costs):
+    total = 0
     for ticker in tickers:
-        percentage = percentage + percentages[ticker]
-    return percentage
+        total = total + costs[ticker]
+    return total
