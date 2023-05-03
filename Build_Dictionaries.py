@@ -1,7 +1,6 @@
 
 import csv
 from Portfolio import Position, Portfolio
-from Data_Manipulation import reduce_dictionary, combine_tickers
 
 def retrieve_portfolio():
     portfolio_csv_dump = []
