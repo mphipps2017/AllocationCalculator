@@ -21,10 +21,16 @@ class Portfolio:
         self.condenced_positions = {}
 
     def remove_position(self, ticker):
+        self.total = self.total - self.positions[ticker].in_dollars()
         return self.positions.pop(ticker)
     
-    def update_position(self, ticker, position):
+    def add_position(self, ticker, position):
+        self.total = self.total + position.in_dollars()
         self.positions[ticker] = position
+
+    def update_position(self, ticker, position):
+        self.remove_position(ticker)
+        self.add_position(ticker, position)
     
     def percentage_held(self, ticker):
         return self.positions[ticker].in_dollars()/self.total

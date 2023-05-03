@@ -1,7 +1,11 @@
 # Things left to clean up can improve
-# Could make portfolio and trans into it's own class
 # Add a way to remove transactions
-# Work on a selling interface as well
+# Work on to string functions to clean up main class
+# Work on a selling interface
+# Create a dump of transaction on exit
+# Create ticker not found exceptio for allocate
+# Create a Help command
+# Create a default case
 
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import print_transactions, Transaction
@@ -21,7 +25,6 @@ while True:
     command = input("Enter command: ")
     match command.lower():
         case 'exit':
-            # TODO, dump trans on exit
             break
         case 'deposit':
             amount_to_allocate = input('')
@@ -68,7 +71,6 @@ while True:
                     transaction_list[allocation_ticker] = Transaction(shares, dollar_allo)
                     current_allocation_ammount = current_allocation_ammount - dollar_allo
 
-            # TODO can create exception for ticker not found
         case 'reset':
             current_allocation_ammount = base_allocation_amount
         case 'trans':
@@ -80,9 +82,9 @@ while True:
             print("Dollars: " + stringify_dollar(current_allocation_ammount))
             print("Percentage: " + stringify_percentage(current_allocation_ammount/portfolio.total))
             print_transactions(transaction_list, portfolio.total)
-        # TODO, default case???
         case 'rmv_trn':
             ticker = input("Enter ticker to remove: ").upper()
             current_allocation_ammount = current_allocation_ammount + transaction_list[ticker][1]
             transaction_list.pop(ticker)
+        
     print("")
