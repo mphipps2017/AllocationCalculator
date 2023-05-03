@@ -1,80 +1,18 @@
 # Things left to clean up can improve
-# Refactor into more helper functions
-# Refactor into multiple .py classes
+# Could make portfolio into it's own class
 # Add a way to remove transactions
 # Work on a selling interface as well
 
 BOND_TICKERS = ('BND', 'SCHZ', 'AGG') 
 
 import csv
-account_total = 0
-portfolio_csv_dump = []
-portfolio = {}  
+from Formatting import stringify_dollar, stringify_percentage
+from Data_Manipulation import reduce_dictionary, combine_tickers
+from Build_Dictionaries import retrieve_portfolio, retrieve_portfolio_total, retrieve_allocations
 
-def stringify_dollar(value):
-    return "$" + str(round(value,2))
-
-def stringify_percentage(value):
-    return str(round(value*100,2)) + '%'
-
-# Ticker = list of tickers to combine percetnages
-# Percentage = dictionary of ticker  percentage pairs
-# Returns the total percentage of all tickers
-def combine_tickers(tickers, percentages):
-    percentage = 0
-    for ticker in tickers:
-        percentage = percentage + percentages[ticker]
-    return percentage
-
-def reduce_dictionary(dictionary, col):
-    new_dict = {}
-    for key in dictionary:
-        new_dict[key] = dictionary[key][col]
-    return new_dict
-
-# Read portfolio CSV
-with open('TestDoc.csv', newline='') as csvfile:
-    row_count = 0
-    spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
-    i = 0
-    for row in spamreader:
-        portfolio_csv_dump.append(row)
-        i = i + 1
-    row_count = i
-
-    # Grab account balance
-    account_total = portfolio_csv_dump[row_count-1][6]
-    account_total = float(account_total.strip('$').replace(',', '', len(account_total)))
-    
-    # create 2D array to use for calculations  
-    i = 0
-    for row in portfolio_csv_dump:
-        if i != 0 and i != 1 and i != 2 and i != row_count-1 and i != row_count-2:
-            holding_per = float(row[15].strip('%'))/100
-            share_price = float(row[3].strip('$').replace(',', '', len(row[3])))
-            portfolio[row[0]] = [row[15], holding_per, row[3], share_price]
-        i = i + 1
-
-    # Set cash value for portfolio
-    cash_per_str = portfolio_csv_dump[row_count-2][15]
-    portfolio['CASH'] = [cash_per_str, float(cash_per_str.strip('%'))/100, "$1.00", "1"]
-
-# Read balance portfolio allocations
-#allocation_csv_dump = []
-allocations_dict = {}
-with open('Allocations.csv', newline='') as csvfile:
-    allocations = csv.reader(csvfile, delimiter=',')
-    for row in allocations:
-        if row[5] != "" and row[3]!="Ticker":
-            allocations_dict[row[3]] = float(row[5].strip('%'))/100
-
-# portfolio[0] - Ticker,
-# portfolio[1] - Percentage held (string),
-# portfolio[2] - Percentage held (float),
-# portfolio[3] - Share price (string),
-# portfolio[4] - Share price (float)
-
-# # %-4.4f float print string
+account_total = retrieve_portfolio_total()
+portfolio = retrieve_portfolio()
+allocations_dict = retrieve_allocations()
 
 # Reduces Bond tickers to just BND, might want make generic method at some point
 bnd_per = combine_tickers(BOND_TICKERS, reduce_dictionary(portfolio, 1))
