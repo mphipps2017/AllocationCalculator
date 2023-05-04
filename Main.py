@@ -1,16 +1,23 @@
-# Things left to clean up can improve
-# Add a way to remove transactions
+# TODO Things left to clean up can improve
 # Work on to string functions to clean up main class
 # Work on a selling interface
-# Create a dump of transaction on exit
 # Create ticker not found exceptio for allocate
 # Create a Help command
 # Create a default case
 
 from Formatting import stringify_dollar, stringify_percentage
-from Transactions import print_transactions, Transaction
+from Transactions import print_transactions, Transaction, print_to_file
 from Build_Dictionaries import retrieve_portfolio, retrieve_allocations
 BOND_TICKERS = ('SCHZ', 'AGG') 
+
+def allocations_string(base, current, total):
+    ret_str = "Base allocation amount"
+    ret_str = ret_str + "\nDollars: " + stringify_dollar(base)
+    ret_str = ret_str + "\nPercentage: " + stringify_percentage(base/total)
+    ret_str = ret_str + "\n\nUnallocated amount"
+    ret_str = ret_str + "\nDollars: " + stringify_dollar(current)
+    ret_str = ret_str + "\nPercentage: " + stringify_percentage(current/total)
+    return ret_str
 
 portfolio = retrieve_portfolio()
 portfolio.condence_position(['BND'], BOND_TICKERS)
@@ -25,6 +32,8 @@ while True:
     command = input("Enter command: ")
     match command.lower():
         case 'exit':
+            prefix = allocations_string(base_allocation_amount, current_allocation_ammount, portfolio.total) + "\n\n"
+            print_to_file(prefix, transaction_list, portfolio.total)
             break
         case 'deposit':
             amount_to_allocate = input('')
@@ -74,14 +83,10 @@ while True:
         case 'reset':
             current_allocation_ammount = base_allocation_amount
         case 'trans':
-            print("\nBase allocation amount")
-            print("Dollars: " + stringify_dollar(base_allocation_amount))
-            print("Percentage: " + stringify_percentage(base_allocation_amount/portfolio.total))
-
-            print("\nUnallocated amount")
-            print("Dollars: " + stringify_dollar(current_allocation_ammount))
-            print("Percentage: " + stringify_percentage(current_allocation_ammount/portfolio.total))
-            print_transactions(transaction_list, portfolio.total)
+            print("")
+            print(allocations_string(base_allocation_amount, current_allocation_ammount, portfolio.total))
+            print("")
+            print(print_transactions(transaction_list, portfolio.total))
         case 'rmv_trn':
             ticker = input("Enter ticker to remove: ").upper()
             current_allocation_ammount = current_allocation_ammount + transaction_list[ticker][1]
