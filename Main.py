@@ -1,14 +1,11 @@
 # TODO Things left to clean up can improve
 # Work on to string functions to clean up main class
-# Work on a selling interface
-# Create ticker not found exceptio for allocate
-# Create a Help command
-# Create a default case
+# Work on a selling interface (do via creating transaction list class)
 
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import print_transactions, Transaction, print_to_file
 from Build_Dictionaries import retrieve_portfolio, retrieve_allocations
-BOND_TICKERS = ('SCHZ', 'AGG') 
+BOND_TICKERS = ('SCHZ', 'AGG')
 
 def allocations_string(base, current, total):
     ret_str = "Base allocation amount"
@@ -35,10 +32,7 @@ while True:
             prefix = allocations_string(base_allocation_amount, current_allocation_ammount, portfolio.total) + "\n\n"
             print_to_file(prefix, transaction_list, portfolio.total)
             break
-        case 'deposit':
-            amount_to_allocate = input('')
-        case 'bal':
-            print(amount_to_allocate)
+
         case 'compare':
             print("\n%-10s %15s %15s %15s %15s" %("TICKER", "SHARE_PRICE",  "CURRENT", "TARGET", "SHORTFALL"))
             for key in portfolio.positions:
@@ -49,8 +43,15 @@ while True:
                 print("%-10s %15s %15s %15s %15s" %(key, share_price, percentage_held, target_allocation, shortfall))
             
         case 'allocate':
-            allocation_ticker = input("\nEnter ticker: ").upper()
-            shortfall = allocations_dict[allocation_ticker]-portfolio.percentage_held(allocation_ticker)
+            allocation_ticker = ""
+            shortfall = 0.0
+            while True:
+                try: 
+                    allocation_ticker = input("\nEnter ticker: ").upper()
+                    shortfall = allocations_dict[allocation_ticker]-portfolio.percentage_held(allocation_ticker)
+                    break
+                except KeyError:
+                    print("Could not find ticker in portfolio")
             percentage_allo = shortfall
             dollar_allo = shortfall*portfolio.total
             share_price = portfolio.positions[allocation_ticker].share_price
@@ -82,14 +83,29 @@ while True:
 
         case 'reset':
             current_allocation_ammount = base_allocation_amount
+            transaction_list = {}
+
         case 'trans':
             print("")
             print(allocations_string(base_allocation_amount, current_allocation_ammount, portfolio.total))
             print("")
             print(print_transactions(transaction_list, portfolio.total))
+
         case 'rmv_trn':
             ticker = input("Enter ticker to remove: ").upper()
             current_allocation_ammount = current_allocation_ammount + transaction_list[ticker][1]
             transaction_list.pop(ticker)
+
+        case 'help':
+            # TODO, move the strings to a readme file of sorts and print from the readme
+            print("\n%-10s %-15s" %("allocate", "Allocate portion of cash to a specific transaction"))
+            print("%-10s %-15s" %("compare", "Shows the current state of portfolio versus the target state"))
+            print("%-10s %-15s" %("exit", "Close CLI and print dump of transaction list to dump.txt"))
+            print("%-10s %-15s" %("reset", "Reset the state back to what it was on system startup"))
+            print("%-10s %-15s" %("rmv_trn", "Remove a specific transaction from transaction list"))
+            print("%-10s %-15s" %("trans", "Check the current list of all transactions to execute"))
         
+        case _:
+            print("Command not found")
+
     print("")
