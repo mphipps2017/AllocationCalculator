@@ -1,5 +1,5 @@
 # TODO Work on to string functions to clean up main class
-# work on a function that works like allocate but for selling
+# Can save some more lines of code by making a function for getting ticker input
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Build_Dictionaries import retrieve_portfolio, retrieve_allocations
