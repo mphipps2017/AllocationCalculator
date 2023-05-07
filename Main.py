@@ -1,4 +1,5 @@
 # TODO Work on to string functions to clean up main class
+# work on a function that works like allocate but for selling
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Build_Dictionaries import retrieve_portfolio, retrieve_allocations
@@ -69,6 +70,33 @@ while True:
                         transaction_list.add_transaction(allocation_ticker, Transaction(shares, dollar_allo))
                     except KeyError:
                         print("Transaction for ticker exists, use upd_trn")
+
+        case 'sell':
+            allocation_ticker = ""
+            over_allocation = 0.0
+            try: 
+                allocation_ticker = input("\nEnter ticker: ").upper()
+                over_allocation = portfolio.percentage_held(allocation_ticker) - allocations_dict[allocation_ticker]
+            except KeyError:
+                print("Could not find ticker in portfolio")
+                print("")
+                continue
+            percentage_allo = over_allocation
+            dollar_allo = over_allocation*portfolio.total
+            share_price = portfolio.positions[allocation_ticker].share_price
+            shares = dollar_allo/share_price
+            shares = float(input("How many shares should be purchased? "))
+            dollar_allo = share_price * shares
+            percentage_allo = dollar_allo/portfolio.total
+            
+            print("\n%-15s %-15s %-15s" %("OVER_AMOUNT", "OVER_PER", "OVER_SHARES"))
+            print("%-15s %-15s %-15s" %(stringify_dollar(dollar_allo), stringify_percentage(percentage_allo), str(round(shares,2))))
+            confirm = input("\nconfirm allocation (y/n)? ")
+            if confirm.lower() == "y":
+                try:
+                    transaction_list.add_transaction(allocation_ticker, Transaction(shares, (-1*dollar_allo)))
+                except KeyError:
+                    print("Transaction for ticker exists, use upd_trn")
 
         case 'reset':
             transaction_list.reset()
