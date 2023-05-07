@@ -1,5 +1,6 @@
-# TODO Work on to string functions to clean up main class
-# Can save some more lines of code by making a function for getting ticker input
+# TODO add something for updating to positions not either portfolio or allocation
+# Could make it so easier to change name of files (global values file that is read from / written to)
+# Instead of "condencing" things into a ticker to rep a bond allo, maybe create some sort of umbrella function
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Build_Dictionaries import retrieve_portfolio, retrieve_allocations
@@ -12,6 +13,24 @@ allocations_dict = retrieve_allocations()
 
 base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
 transaction_list = Transactions({}, base_allocation_amount, portfolio.total)
+
+# Returns ticker, or nothing if ticker not found in portfolio / allocations
+def input_ticker(text_str):
+    allocation_ticker = ""
+    try: 
+        allocation_ticker = input("\n"+text_str).upper()
+        allocations_dict[allocation_ticker]
+        portfolio.percentage_held(allocation_ticker)
+        return allocation_ticker
+    except KeyError:
+        print("Could not find ticker in portfolio / allocations")
+        print("")
+        return ""
+
+# Helper function for printing an allocation
+def print_allocation_differences(dollar_allo, percentage_allo, shares):
+    print("\n%-15s %-15s %-15s" %("AMNT_$$", "PERCENTAGE", "SHARES"))
+    print("%-15s %-15s %-15s\n" %(stringify_dollar(dollar_allo), stringify_percentage(percentage_allo), str(round(shares,2))))
 
 while True:
     command = input("Enter command: ")
@@ -31,21 +50,15 @@ while True:
                 print("%-10s %15s %15s %15s %15s" %(key, share_price, percentage_held, target_allocation, shortfall))
             
         case 'allocate':
-            allocation_ticker = ""
-            shortfall = 0.0
-            try: 
-                allocation_ticker = input("\nEnter ticker: ").upper()
-                shortfall = allocations_dict[allocation_ticker]-portfolio.percentage_held(allocation_ticker)
-            except KeyError:
-                print("Could not find ticker in portfolio")
-                print("")
+            allocation_ticker = input_ticker("Enter ticker: ")
+            if allocation_ticker == "":
                 continue
+            shortfall = allocations_dict[allocation_ticker]-portfolio.percentage_held(allocation_ticker)
             percentage_allo = shortfall
             dollar_allo = shortfall*portfolio.total
             share_price = portfolio.positions[allocation_ticker].share_price
             shares = dollar_allo/share_price
-            print("\n%-15s %-15s %-15s" %("ALLO_AMOUNT", "ALLO_PER", "ALLOW_SHARES"))
-            print("%-15s %-15s %-15s" %(stringify_dollar(dollar_allo), stringify_percentage(percentage_allo), str(round(shares,2))))
+            print_allocation_differences(dollar_allo, percentage_allo, shares)
             if shortfall < 0:
                 print("\nmust be under allocated to submit allocation")
             else:
@@ -54,16 +67,12 @@ while True:
                     dollar_allo = transaction_list.current_allocation_ammount
                     percentage_allo = dollar_allo/portfolio.total
                     shares = dollar_allo/share_price
-                    print("\n%-15s %-15s %-15s" %("ALLO_AMOUNT", "ALLO_PER", "ALLOW_SHARES"))
-                    print("%-15s %-15s %-15s" %(stringify_dollar(dollar_allo), stringify_percentage(percentage_allo), str(round(shares,2))))
-                
+                    print_allocation_differences(dollar_allo, percentage_allo, shares)
                 shares = float(input("How many shares should be purchased? "))
                 dollar_allo = share_price * shares
                 percentage_allo = dollar_allo/portfolio.total
-
                 print("New values")
-                print("\n%-15s %-15s %-15s" %("ALLO_AMOUNT", "ALLO_PER", "ALLOW_SHARES"))
-                print("%-15s %-15s %-15s" %(stringify_dollar(dollar_allo), stringify_percentage(percentage_allo), str(round(shares,2))))
+                print_allocation_differences(dollar_allo, percentage_allo, shares)
                 confirm = input("\nconfirm allocation (y/n)? ")
                 if confirm.lower() == "y":
                     try:
@@ -72,25 +81,19 @@ while True:
                         print("Transaction for ticker exists, use upd_trn")
 
         case 'sell':
-            allocation_ticker = ""
-            over_allocation = 0.0
-            try: 
-                allocation_ticker = input("\nEnter ticker: ").upper()
-                over_allocation = portfolio.percentage_held(allocation_ticker) - allocations_dict[allocation_ticker]
-            except KeyError:
-                print("Could not find ticker in portfolio")
-                print("")
+            allocation_ticker = input_ticker("Enter ticker: ")
+            if allocation_ticker == "":
                 continue
+            over_allocation = portfolio.percentage_held(allocation_ticker) - allocations_dict[allocation_ticker]
             percentage_allo = over_allocation
             dollar_allo = over_allocation*portfolio.total
             share_price = portfolio.positions[allocation_ticker].share_price
             shares = dollar_allo/share_price
-            shares = float(input("How many shares should be purchased? "))
+            print_allocation_differences(dollar_allo, percentage_allo, shares)
+            shares = float(input("How many shares should be sold? "))
             dollar_allo = share_price * shares
             percentage_allo = dollar_allo/portfolio.total
-            
-            print("\n%-15s %-15s %-15s" %("OVER_AMOUNT", "OVER_PER", "OVER_SHARES"))
-            print("%-15s %-15s %-15s" %(stringify_dollar(dollar_allo), stringify_percentage(percentage_allo), str(round(shares,2))))
+            print_allocation_differences(dollar_allo, percentage_allo, shares)
             confirm = input("\nconfirm allocation (y/n)? ")
             if confirm.lower() == "y":
                 try:
@@ -105,27 +108,25 @@ while True:
             print(transaction_list.__str__())
 
         case 'rmv_trn':
-            ticker = input("Enter ticker to remove: ").upper()
+            ticker = input_ticker("Enter ticker to remove: ")
             transaction_list.rmv_transaction(ticker)
         
         case 'upd_trn':
-            ticker = input("Enter ticker to update: ").upper()
-            try:
-                shares = float(input("Enter number of shares: "))
-                cost = portfolio.positions[ticker].share_price * shares
-                transaction_list.upd_transaction(ticker, Transaction(shares, cost))
-            except KeyError:
-                print("Could not find ticker for entered value")
+            ticker = input_ticker("Enter ticker to update: ")
+            shares = float(input("Enter number of shares: "))
+            cost = portfolio.positions[ticker].share_price * shares
+            transaction_list.upd_transaction(ticker, Transaction(shares, cost))
 
         case 'help':
-            # TODO, move the strings to a readme file of sorts and print from the readme
-            print("\n%-10s %-15s" %("allocate", "Allocate portion of cash to a specific transaction"))
-            print("%-10s %-15s" %("compare", "Shows the current state of portfolio versus the target state"))
-            print("%-10s %-15s" %("exit", "Close CLI and print dump of transaction list to dump.txt"))
-            print("%-10s %-15s" %("reset", "Reset the state back to what it was on system startup"))
-            print("%-10s %-15s" %("rmv_trn", "Remove a specific transaction from transaction list"))
-            print("%-10s %-15s" %("trans", "Check the current list of all transactions to execute"))
-            print("%-10s %-15s" %("upd_trn", "Update an existing transaction"))
+            with open('help.txt', newline='') as file:
+                iterator = 1
+                command = ""
+                for line in file.readlines():
+                    if iterator % 2 == 0:
+                        command = line.strip()
+                    else:
+                        print("%-10s %-15s" %(command, line.strip()))
+                    iterator = iterator + 1
         
         case _:
             print("Command not found")

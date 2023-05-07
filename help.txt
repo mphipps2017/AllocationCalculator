@@ -1,0 +1,17 @@
+
+allocate
+Allocate portion of cash to a specific transaction
+compare
+Shows the current state of portfolio versus the target state
+exit
+Close CLI and print dump of transaction list to dump.txt
+reset
+Reset the state back to what it was on system startup
+rmv_trn
+Remove a specific transaction from transaction list
+sell
+Will allocate shares of a certain ticker to sell and give money back to transaction list
+trans
+Check the current list of all transactions to execute
+upd_trn
+Update an existing transaction

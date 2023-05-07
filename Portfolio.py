@@ -43,7 +43,7 @@ class Portfolio:
             self.condenced_positions[ticker] = self.remove_position(ticker)
 
         for ticker in condencer_ticker:
-            temp_total = (total)/len(condencer_ticker) + self.positions[ticker].in_dollars()
+            temp_total = total/len(condencer_ticker) + self.positions[ticker].in_dollars()
             share_price = self.positions[ticker].share_price
             shares = temp_total/share_price
             self.update_position(ticker, Position(shares, share_price))
