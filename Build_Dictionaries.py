@@ -2,10 +2,18 @@
 import csv
 from Portfolio import Position, Portfolio
 
+allocations_file_name = ""
+portfolio_file_name = ""
+
+with open('supporting_files/file_names', newline='') as file:
+    lines = file.readlines()
+    portfolio_file_name = lines[0].strip()
+    allocations_file_name = lines[1].strip()
+
 def retrieve_portfolio():
     portfolio_csv_dump = []
     portfolio = {}
-    with open('TestDoc.csv', newline='') as csvfile:
+    with open('supporting_files/'+portfolio_file_name, newline='') as csvfile:
         row_count = 0
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
         i = 0
@@ -33,7 +41,7 @@ def retrieve_portfolio():
 
 def retrieve_allocations():
     allocations_dict = {}
-    with open('Allocations.csv', newline='') as csvfile:
+    with open('supporting_files/'+allocations_file_name, newline='') as csvfile:
         allocations = csv.reader(csvfile, delimiter=',')
         for row in allocations:
             if row[5] != "" and row[3]!="Ticker":

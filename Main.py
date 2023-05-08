@@ -3,13 +3,13 @@
 # Instead of "condencing" things into a ticker to rep a bond allo, maybe create some sort of umbrella function
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
-from Build_Dictionaries import retrieve_portfolio, retrieve_allocations
+import Build_Dictionaries
 BOND_TICKERS = ('SCHZ', 'AGG')
 
-portfolio = retrieve_portfolio()
+portfolio = Build_Dictionaries.retrieve_portfolio()
 portfolio.condence_position(['BND'], BOND_TICKERS)
 portfolio.condence_position(['AVUS', 'DFUS'], ['VTI'])
-allocations_dict = retrieve_allocations()
+allocations_dict = Build_Dictionaries.retrieve_allocations()
 
 base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
 transaction_list = Transactions({}, base_allocation_amount, portfolio.total)
@@ -36,7 +36,7 @@ while True:
     command = input("Enter command: ")
     match command.lower():
         case 'exit':
-            with open('dump.txt', 'w') as f:
+            with open('supporting_files/dump.txt', 'w') as f:
                 f.writelines(transaction_list.__str__())
             break
 
@@ -109,10 +109,14 @@ while True:
 
         case 'rmv_trn':
             ticker = input_ticker("Enter ticker to remove: ")
+            if ticker == "":
+                continue
             transaction_list.rmv_transaction(ticker)
         
         case 'upd_trn':
             ticker = input_ticker("Enter ticker to update: ")
+            if ticker == "":
+                continue
             shares = float(input("Enter number of shares: "))
             cost = portfolio.positions[ticker].share_price * shares
             transaction_list.upd_transaction(ticker, Transaction(shares, cost))

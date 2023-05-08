@@ -7,3 +7,6 @@ where as the other is the current portfolio allocations of these tickers.
 
 Using these 2 data points, and some current market data, it makes it easier to help see at a glance what securities
 are under / over allocated to as well as create a list of transactions to remediate these differences.
+
+Note to use you will also need to make a supporting_files/file_names.txt file that has the first line as
+the file name of the portfolio csv, and the second as the target allocation csv
