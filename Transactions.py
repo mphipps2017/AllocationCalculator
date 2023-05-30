@@ -22,19 +22,40 @@ class Transactions:
         ret_str = ret_str + "\n\nCurrent allocation"
         ret_str = ret_str + "\nDollars: " + stringify_dollar(current)
         ret_str = ret_str + "\nPercentage: " + stringify_percentage(current/total)
-        ret_str = ret_str + "\n\nAllocations" + "\n%-10s %15s %15s %15s" %("TICKER", "SHARES",  "DOLLAR", "PERCENTAGE")
-        total_dollar = 0.0
-        total_percentage = 0.0
+        ret_str = ret_str + "\n\nBuy" + "\n%-10s %15s %15s %15s" %("TICKER", "SHARES",  "DOLLAR", "PERCENTAGE")
+        total_dollar_buy = 0.0
+        total_percentage_buy = 0.0
+        total_dollar_sell = 0.0
+        total_percentage_sell = 0.0
+        selling_list = {}
+        buying_list = {}
         transaction_list = self.transactions
         for key in transaction_list:
+            if transaction_list[key].cost < 0:
+                selling_list[key] = transaction_list[key]
+            else:
+                buying_list[key] = transaction_list[key]
+        
+        for key in buying_list:
             dollar_amt = stringify_dollar(transaction_list[key].cost)
             shares = transaction_list[key].shares
             percentage_amt_float = transaction_list[key].cost/total
             percentage_amt = stringify_percentage(percentage_amt_float)
-            total_dollar = total_dollar + transaction_list[key].cost
-            total_percentage = total_percentage + percentage_amt_float
+            total_dollar_buy = total_dollar_buy + transaction_list[key].cost
+            total_percentage_buy = total_percentage_buy + percentage_amt_float
             ret_str = ret_str + "\n%-10s %15s %15s %15s" %(key,  shares, dollar_amt, percentage_amt)
-        return ret_str + "\n%-10s %15s %15s %15s" %("TOTALS",  "", stringify_dollar(total_dollar), stringify_percentage(total_percentage))
+        ret_str = ret_str + "\n%-10s %15s %15s %15s" %("TOTALS",  "", stringify_dollar(total_dollar_buy), stringify_percentage(total_percentage_buy))
+        
+        ret_str = ret_str + "\n\nSell" + "\n%-10s %15s %15s %15s" %("TICKER", "SHARES",  "DOLLAR", "PERCENTAGE")
+        for key in selling_list:
+            dollar_amt = stringify_dollar(transaction_list[key].cost)
+            shares = transaction_list[key].shares
+            percentage_amt_float = transaction_list[key].cost/total
+            percentage_amt = stringify_percentage(percentage_amt_float)
+            total_dollar_sell = total_dollar_sell + transaction_list[key].cost
+            total_percentage_sell = total_percentage_sell + percentage_amt_float
+            ret_str = ret_str + "\n%-10s %15s %15s %15s" %(key,  shares, dollar_amt, percentage_amt)
+        return ret_str + "\n%-10s %15s %15s %15s" %("TOTALS",  "", stringify_dollar(total_dollar_sell), stringify_percentage(total_percentage_sell))
     
     def add_transaction(self, ticker, transaction):
         try: 

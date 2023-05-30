@@ -1,7 +1,5 @@
-# TODO add something for adding positions not in either portfolio or allocation
-# Instead of "condencing" things into a ticker to rep a bond allo, maybe create some sort of umbrella function
+# TODO Instead of "condencing" things into a ticker to rep a bond allo, maybe create some sort of umbrella function
 # Could add an exception handler on startup for when file is not found
-# Better sort transaction dump.  Seperate into sell and buy bits ordered alphabetically? 
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Portfolio import Position
