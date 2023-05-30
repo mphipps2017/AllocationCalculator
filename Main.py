@@ -1,14 +1,16 @@
-# TODO add something for updating to positions not either portfolio or allocation
-# Could make it so easier to change name of files (global values file that is read from / written to)
+# TODO add something for adding positions not in either portfolio or allocation
 # Instead of "condencing" things into a ticker to rep a bond allo, maybe create some sort of umbrella function
+# Could add an exception handler on startup for when file is not found
+# Better sort transaction dump.  Seperate into sell and buy bits ordered alphabetically? 
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
+from Portfolio import Position
 import Build_Dictionaries
 BOND_TICKERS = ('SCHZ', 'AGG')
 
 portfolio = Build_Dictionaries.retrieve_portfolio()
-portfolio.condence_position(['BND'], BOND_TICKERS)
-portfolio.condence_position(['AVUS', 'DFUS'], ['VTI'])
+#portfolio.condence_position(['BND'], BOND_TICKERS)
+#portfolio.condence_position(['AVUS', 'DFUS'], ['VTI'])
 allocations_dict = Build_Dictionaries.retrieve_allocations()
 
 base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
@@ -41,13 +43,14 @@ while True:
             break
 
         case 'compare':
-            print("\n%-10s %15s %15s %15s %15s" %("TICKER", "SHARE_PRICE",  "CURRENT", "TARGET", "SHORTFALL"))
+            print("\n%-10s %15s %15s %15s %15s %15s" %("TICKER", "DOLLAR_AMNT","SHARE_PRICE",  "CURRENT", "TARGET", "SHORTFALL"))
             for key in portfolio.positions:
                 percentage_held = stringify_percentage(portfolio.percentage_held(key))
+                dollar_amount =  stringify_dollar(portfolio.positions[key].in_dollars())
                 shortfall = stringify_percentage(allocations_dict[key]-portfolio.percentage_held(key))
                 share_price = stringify_dollar(portfolio.positions[key].share_price)
                 target_allocation = stringify_percentage(allocations_dict[key])
-                print("%-10s %15s %15s %15s %15s" %(key, share_price, percentage_held, target_allocation, shortfall))
+                print("%-10s %15s %15s %15s %15s %15s" %(key, dollar_amount, share_price, percentage_held, target_allocation, shortfall))
             
         case 'allocate':
             allocation_ticker = input_ticker("Enter ticker: ")
@@ -106,6 +109,16 @@ while True:
 
         case 'trans':
             print(transaction_list.__str__())
+
+        case 'new_ticker':
+            ticker = input("Enter ticker: ").upper()
+            share_price = input("Share price: ")
+            portfolio.add_position(ticker, Position(0.00 ,share_price))
+            allocations_dict[ticker] = 0.00
+
+        case 'upd_money':
+            amount = float(input("Amount to add: "))
+            portfolio.update_position('CASH', Position(amount, 1.0))
 
         case 'rmv_trn':
             ticker = input_ticker("Enter ticker to remove: ")

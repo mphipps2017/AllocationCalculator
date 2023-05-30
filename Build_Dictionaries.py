@@ -1,4 +1,3 @@
-
 import csv
 from Portfolio import Position, Portfolio
 
