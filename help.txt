@@ -1,8 +1,12 @@
 
 allocate
 Allocate portion of cash to a specific transaction
+auto_allo
+Creates list of transactions where will allocate the percentage and truncate at the nearest share price of under allocation
 compare
 Shows the current state of portfolio versus the target state
+compare_trn
+Shows a before and after of percentage allocations after the transactions would be applied
 exit
 Close CLI and print dump of transaction list to dump.txt
 reset

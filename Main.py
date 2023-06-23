@@ -1,10 +1,10 @@
 # TODO Instead of "condencing" things into a ticker to rep a bond allo, maybe create some sort of umbrella function
-# Could add an exception handler on startup for when file is not found
+# TODO make it so if the target allocations have a ticker not in portfolio yet it properly displays in compare
 from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Portfolio import Position
-import Build_Dictionaries
-BOND_TICKERS = ('SCHZ', 'AGG')
+import Build_Dictionaries, math
+#BOND_TICKERS = ('SCHZ', 'AGG')
 
 portfolio = Build_Dictionaries.retrieve_portfolio()
 #portfolio.condence_position(['BND'], BOND_TICKERS)
@@ -81,6 +81,47 @@ while True:
                     except KeyError:
                         print("Transaction for ticker exists, use upd_trn")
 
+        case 'auto_allo':
+            dict_shortfall = {}
+            for key in portfolio.positions:
+                shortfall = allocations_dict[key]-portfolio.percentage_held(key)
+                dict_shortfall[key] = shortfall
+            sorted_dict = sorted(dict_shortfall.items(), key=lambda x:x[1], reverse=True)
+            arr_allos = []
+            for ticker in sorted_dict:
+                if(ticker[1] > 0):
+                    arr_allos.append(ticker)
+            for ticker in arr_allos:
+                allocation_ticker = ticker[0]
+                shortfall = ticker[1]
+                share_price = portfolio.positions[allocation_ticker].share_price
+                shares = math.floor((shortfall*portfolio.total)/share_price)
+                dollar_allo = share_price * shares
+                if dollar_allo > transaction_list.current_allocation_ammount:
+                    shares = math.floor((transaction_list.current_allocation_ammount)/share_price)
+                    dollar_allo = share_price * shares
+                if shares != 0:
+                    transaction_list.add_transaction(allocation_ticker, Transaction(shares, dollar_allo))
+            print(transaction_list.__str__())
+
+            # make function for accepting changes?
+            # make so works mid working through (will error if trn added before I think)?
+        
+        case 'compare_trn':
+            print("\n%-10s %15s %15s %15s %15s" %("TICKER", "DOLLAR_AMNT", "TARGET", "SHORTFALL_BFR", "SHORTFALL_AFTR"))
+            for key in portfolio.positions:
+                dollar_amount =  stringify_dollar(portfolio.positions[key].in_dollars())
+                target_allocation = stringify_percentage(allocations_dict[key])
+                shortfall_bfr = stringify_percentage(allocations_dict[key]-portfolio.percentage_held(key))
+                allocations_dict[key]-portfolio.percentage_held(key)
+                shortfall_aftr = ""
+                try:
+                    per_trn =  transaction_list.transactions[key].cost/transaction_list.portfolio_total
+                    shortfall_aftr = stringify_percentage(allocations_dict[key]-(portfolio.percentage_held(key)+per_trn))
+                except:
+                    shortfall_aftr = shortfall_bfr 
+                print("%-10s %15s %15s %15s %15s" %(key, dollar_amount, target_allocation, shortfall_bfr, shortfall_aftr))
+            
         case 'sell':
             allocation_ticker = input_ticker("Enter ticker: ")
             if allocation_ticker == "":
@@ -117,6 +158,8 @@ while True:
         case 'upd_money':
             amount = float(input("Amount to add: "))
             portfolio.update_position('CASH', Position(amount, 1.0))
+            base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
+            transaction_list = Transactions({}, base_allocation_amount, portfolio.total)
 
         case 'rmv_trn':
             ticker = input_ticker("Enter ticker to remove: ")
@@ -140,9 +183,8 @@ while True:
                     if iterator % 2 == 0:
                         command = line.strip()
                     else:
-                        print("%-10s %-15s" %(command, line.strip()))
+                        print("%-15s %-20s" %(command, line.strip()))
                     iterator = iterator + 1
-        
         case _:
             print("Command not found")
 
