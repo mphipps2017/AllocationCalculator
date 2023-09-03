@@ -4,11 +4,10 @@ from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Portfolio import Position
 import Build_Dictionaries, math
-#BOND_TICKERS = ('SCHZ', 'AGG')
+BOND_TICKERS = ('SCHZ', 'AGG')
 
 portfolio = Build_Dictionaries.retrieve_portfolio()
 #portfolio.condence_position(['BND'], BOND_TICKERS)
-#portfolio.condence_position(['AVUS', 'DFUS'], ['VTI'])
 allocations_dict = Build_Dictionaries.retrieve_allocations()
 
 base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
@@ -97,6 +96,9 @@ while True:
                 share_price = portfolio.positions[allocation_ticker].share_price
                 shares = math.floor((shortfall*portfolio.total)/share_price)
                 dollar_allo = share_price * shares
+                if shares == 0:
+                    shares = 1
+                    dollar_allo = share_price * shares
                 if dollar_allo > transaction_list.current_allocation_ammount:
                     shares = math.floor((transaction_list.current_allocation_ammount)/share_price)
                     dollar_allo = share_price * shares
