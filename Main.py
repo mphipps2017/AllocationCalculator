@@ -4,10 +4,10 @@ from Formatting import stringify_dollar, stringify_percentage
 from Transactions import Transaction, Transactions
 from Portfolio import Position
 import Build_Dictionaries, math
-BOND_TICKERS = ('SCHZ', 'AGG')
+BOND_TICKERS = ['SCHZ']
 
 portfolio = Build_Dictionaries.retrieve_portfolio()
-#portfolio.condence_position(['BND'], BOND_TICKERS)
+portfolio.condence_position(['BND'], BOND_TICKERS)
 allocations_dict = Build_Dictionaries.retrieve_allocations()
 
 base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
@@ -108,6 +108,27 @@ while True:
 
             # make function for accepting changes?
             # make so works mid working through (will error if trn added before I think)?
+        case 'auto_sell':
+            dict_shortfall = {}
+            for key in portfolio.positions:
+                if(key != "CASH"):
+                    shortfall = allocations_dict[key]-portfolio.percentage_held(key)
+                    dict_shortfall[key] = shortfall
+            sorted_dict = sorted(dict_shortfall.items(), key=lambda x:x[1], reverse=False)
+            arr_allos = []
+            for ticker in sorted_dict:
+                if(ticker[1] < 0):
+                    arr_allos.append(ticker)
+            for ticker in arr_allos:
+                allocation_ticker = ticker[0]
+                over_allocation = ticker[1]
+                share_price = portfolio.positions[allocation_ticker].share_price
+                shares = math.floor(over_allocation*portfolio.total/share_price*-1)
+                dollar_allo = shares*share_price*-1
+                if(shares != 0):
+                    transaction_list.add_transaction(allocation_ticker, Transaction(shares, (dollar_allo)))
+                
+            print(transaction_list.__str__())
         
         case 'compare_trn':
             print("\n%-10s %15s %15s %15s %15s" %("TICKER", "DOLLAR_AMNT", "TARGET", "SHORTFALL_BFR", "SHORTFALL_AFTR"))
