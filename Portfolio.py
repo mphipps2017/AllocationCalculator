@@ -39,8 +39,12 @@ class Portfolio:
     def condence_position(self, condencer_ticker, condencee_tickers):
         total = 0.0
         for ticker in condencee_tickers:
-            total = total + self.positions[ticker].in_dollars()
-            self.condenced_positions[ticker] = self.remove_position(ticker)
+            try: 
+                total = total + self.positions[ticker].in_dollars()
+                self.condenced_positions[ticker] = self.remove_position(ticker)
+            except KeyError:
+                pass
+            
 
         for ticker in condencer_ticker:
             temp_total = total/len(condencer_ticker) + self.positions[ticker].in_dollars()

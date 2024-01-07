@@ -31,7 +31,7 @@ def retrieve_portfolio():
             if i != 0 and i != 1 and i != 2 and i != row_count-1 and i != row_count-2:
                 holding_per = float(row[15].strip('%'))/100
                 share_price = float(row[3].strip('$').replace(',', '', len(row[3])))
-                portfolio[row[0]] = Position(row[2], share_price)
+                portfolio[row[0]] = Position(row[2].replace(',', '', len(row[2])), share_price)
             i = i + 1
         # Set cash value for portfolio
         cash = float(portfolio_csv_dump[row_count-2][6].strip('$').replace(',', '', len(portfolio_csv_dump[row_count-2][6])))

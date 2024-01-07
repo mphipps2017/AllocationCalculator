@@ -5,9 +5,12 @@ from Transactions import Transaction, Transactions
 from Portfolio import Position
 import Build_Dictionaries, math
 BOND_TICKERS = ['SCHZ']
+MONEY_MARKET = ['SNVXX']
 
 portfolio = Build_Dictionaries.retrieve_portfolio()
 portfolio.condence_position(['BND'], BOND_TICKERS)
+portfolio.condence_position(['CASH'], MONEY_MARKET)
+
 allocations_dict = Build_Dictionaries.retrieve_allocations()
 
 base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
