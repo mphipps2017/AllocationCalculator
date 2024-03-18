@@ -3,6 +3,8 @@ allocate
 Allocate portion of cash to a specific transaction
 auto_allo
 Creates list of transactions where will allocate the percentage and truncate at the nearest share price of under allocation
+auto_sell
+Creates list of transactions to sell based on amending down whole shares that can be sold
 compare
 Shows the current state of portfolio versus the target state
 compare_trn

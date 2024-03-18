@@ -90,23 +90,24 @@ while True:
                 dict_shortfall[key] = shortfall
             sorted_dict = sorted(dict_shortfall.items(), key=lambda x:x[1], reverse=True)
             arr_allos = []
-            for ticker in sorted_dict:
-                if(ticker[1] > 0):
-                    arr_allos.append(ticker)
-            for ticker in arr_allos:
-                allocation_ticker = ticker[0]
-                shortfall = ticker[1]
-                share_price = portfolio.positions[allocation_ticker].share_price
-                shares = math.floor((shortfall*portfolio.total)/share_price)
-                dollar_allo = share_price * shares
-                if shares == 0:
-                    shares = 1
+            if transaction_list.current_allocation_ammount>0:
+                for ticker in sorted_dict:
+                    if(ticker[1] > 0):
+                        arr_allos.append(ticker)
+                for ticker in arr_allos:
+                    allocation_ticker = ticker[0]
+                    shortfall = ticker[1]
+                    share_price = portfolio.positions[allocation_ticker].share_price
+                    shares = math.floor((shortfall*portfolio.total)/share_price)
                     dollar_allo = share_price * shares
-                if dollar_allo > transaction_list.current_allocation_ammount:
-                    shares = math.floor((transaction_list.current_allocation_ammount)/share_price)
-                    dollar_allo = share_price * shares
-                if shares != 0:
-                    transaction_list.add_transaction(allocation_ticker, Transaction(shares, dollar_allo))
+                    if shares == 0:
+                        shares = 1
+                        dollar_allo = share_price * shares
+                    if dollar_allo > transaction_list.current_allocation_ammount:
+                        shares = math.floor((transaction_list.current_allocation_ammount)/share_price)
+                        dollar_allo = share_price * shares
+                    if shares != 0:
+                        transaction_list.add_transaction(allocation_ticker, Transaction(shares, dollar_allo))
             print(transaction_list.__str__())
 
             # make function for accepting changes?
