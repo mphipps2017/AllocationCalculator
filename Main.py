@@ -183,7 +183,7 @@ while True:
             allocations_dict[ticker] = 0.00
 
         case 'upd_money':
-            amount = float(input("Amount to add: "))
+            amount = float(input("Amount to add/remove: ")) + portfolio.positions["CASH"].in_dollars()
             portfolio.update_position('CASH', Position(amount, 1.0))
             base_allocation_amount = round(portfolio.positions['CASH'].in_dollars() - (allocations_dict['CASH']*portfolio.total), 2)
             transaction_list = Transactions({}, base_allocation_amount, portfolio.total)

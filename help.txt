@@ -22,7 +22,7 @@ Will allocate shares of a certain ticker to sell and give money back to transact
 trans
 Check the current list of all transactions to execute
 upd_money
-Update the amount of money in the account
+Add an amount (including negative amounts) to the account
 upd_trn
 Update an existing transaction
 
