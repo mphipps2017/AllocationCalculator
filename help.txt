@@ -11,6 +11,8 @@ compare_trn
 Shows a before and after of percentage allocations after the transactions would be applied
 exit
 Close CLI and print dump of transaction list to dump.txt
+new_ticker
+Add a new ticker to the list of allocations
 reset
 Reset the state back to what it was on system startup
 rmv_trn
@@ -19,5 +21,9 @@ sell
 Will allocate shares of a certain ticker to sell and give money back to transaction list
 trans
 Check the current list of all transactions to execute
+upd_money
+Update the amount of money in the account
 upd_trn
 Update an existing transaction
+
+
