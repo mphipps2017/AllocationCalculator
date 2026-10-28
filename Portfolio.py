@@ -15,9 +15,12 @@ class Position:
         return self.shares * self.share_price
 
 class Portfolio:
-    def __init__(self, positions, total):
+    def __init__(self, positions):
         self.positions = positions
-        self.total = total
+        total = 0
+        for key in positions:
+            total = total + positions[key].in_dollars()
+        self.total = round(total,2)
         self.condenced_positions = {}
 
     def remove_position(self, ticker):
